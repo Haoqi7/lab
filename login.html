@@ -1,0 +1,123 @@
+<!-- File 4: login.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实验室选择</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="lab-card">
+            <div class="card-header">
+                <svg class="lab-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM8 17h2v-3.2h3.2V12H10V8H8v4H4.8v1.8H8V17z"/>
+                </svg>
+                <h1>实验室药品管理系统</h1>
+            </div>
+
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" id="labName" placeholder=" " autocomplete="off">
+                    <label>实验室名称</label>
+                    <div class="underline"></div>
+                </div>
+
+                <div id="createLabSection" class="hidden">
+                    <div class="input-group">
+                        <input type="password" id="createKey" placeholder=" " autocomplete="off">
+                        <label>创建密钥</label>
+                        <div class="underline"></div>
+                        <div class="key-hint">首次创建需要密钥：<code>lab@2024</code></div>
+                    </div>
+                </div>
+
+                <button class="enter-btn" onclick="handleLabEntry()">
+                    <span>立即进入</span>
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="card-footer">
+                <div class="tips">
+                    <div class="tip-item">
+                        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path fill="currentColor" d="M13 7h-2v6h6v-2h-4z"/></svg>
+                        <span>输入已有实验室名称直接进入</span>
+                    </div>
+                    <div class="tip-item">
+                        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                        <span>新名称将创建独立数据空间</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabase.js'
+
+        window.handleLabEntry = async () => {
+            const labName = document.getElementById('labName').value.trim()
+            const createKey = document.getElementById('createKey').value
+            
+            if(!labName) {
+                showToast('请输入实验室名称', 'warning')
+                return
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('labs')
+                    .select('name')
+                    .eq('name', labName)
+                    .single()
+
+                if(!data) {
+                    if(createKey !== 'lab@2024') {
+                        showToast('创建需要输入正确的密钥', 'error')
+                        return
+                    }
+                    
+                    const { error } = await supabase
+                        .from('labs')
+                        .insert([{ name: labName }])
+
+                    if(error) throw error
+                }
+
+                window.location.href = `index.html?lab=${encodeURIComponent(labName)}`
+            } catch (error) {
+                showToast('连接服务器失败，请检查网络', 'error')
+            }
+        }
+
+        // 初始化输入检测
+        document.getElementById('labName').addEventListener('input', async (e) => {
+            const labName = e.target.value.trim()
+            if(labName.length < 3) return
+
+            const { data } = await supabase
+                .from('labs')
+                .select('name')
+                .eq('name', labName)
+                .single()
+
+            document.getElementById('createLabSection').classList.toggle('hidden', !!data)
+        })
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div')
+            toast.className = `toast toast-${type}`
+            toast.innerHTML = `
+                ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'}
+                <span>${message}</span>
+            `
+            document.body.appendChild(toast)
+            setTimeout(() => toast.remove(), 3000)
+        }
+    </script>
+</body>
+</html>

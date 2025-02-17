@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实验室药品查询系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+
+    <!-- 修改index.html中的lab-header部分 -->
+<div class="lab-header">
+    <div class="lab-info">
+        <svg class="lab-icon" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM8 17h2v-3.2h3.2V12H10V8H8v4H4.8v1.8H8V17z"/>
+        </svg>
+        <div class="lab-meta">
+            <h2 id="currentLab">未选择实验室</h2>
+            <div class="lab-status">
+                <span class="status-dot"></span>
+                <span class="status-text">已连接</span>
+            </div>
+        </div>
+    </div>
+    <button class="btn-switch-lab" onclick="window.location.href='login.html'">
+        <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M16 17v-3H5v-2h11V7l5 5-5 5z"/>
+        </svg>
+        <span>切换实验室</span>
+    </button>
+</div>
+
+
+<!-- 在index.html的container div内最上方添加 -->
+    <header class="app-header">
+        <div class="header-content">
+            <h1 class="app-title">
+                实验室药品管理系统
+                <span class="title-divider">|</span>
+                <span class="app-subtitle">安全 · 精准 · 高效</span>
+            </h1>
+            <div class="header-meta">
+                <span class="meta-item">
+                    <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M12 4a4 4 0 014 4c0 3.636-4 10-4 10S8 11.636 8 8a4 4 0 014-4m0 2a2 2 0 00-2 2c0 1.892 1.276 4.108 2 5.419.72-1.31 2-3.527 2-5.419a2 2 0 00-2-2z"/>
+                    </svg>
+                    当前版本 v1.0
+                </span>
+                <span class="meta-divider">/</span>
+                <span class="meta-item">
+                    <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M12 3a9 9 0 11-5.657 2.343L12 12l5.657-5.657A9 9 0 0112 3z"/>
+                    </svg>
+                    数据安全存储
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>总药品数</h3>
+                <span id="totalMedicines">0</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>存放点位</h3>
+                <span id="totalLocations">0</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>总操作次数</h3>
+                <span id="totalOperations">0</span>
+              </div>
+            </div>
+          </div>
+          
+
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="输入药品名称/别名...">
+                <button class="btn-search" onclick="medicineManager.handleSearch()">
+                    <span>搜索</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 药品表格 -->
+        <div class="table-container hidden" id="tableContainer">
+            <table class="med-table" id="medicineTable">
+                <thead>
+                    <tr>
+                        <th>药品名称</th>
+                        <th>库存数量</th>
+                        <th>存放位置</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="medicineList"></tbody>
+            </table>
+            <div class="pagination hidden" id="pagination">
+                <button onclick="medicineManager.prevPage()">上一页</button>
+                <span id="currentPage">1</span>/<span id="totalPages">1</span>
+                <button onclick="medicineManager.nextPage()">下一页</button>
+            </div>
+        </div>
+
+        <!-- 底部说明 -->
+<!-- 修改后的footer部分 -->
+<footer class="footer-note">
+    <p>系统使用说明：</p>
+    <ul>
+        <li>普通搜索模式点击取用直接记录操作</li>
+        <li>显示全部模式可进行药品编辑操作</li>
+        <li>库存数量为0时会显示红色警告</li>
+        <li>目前系统处于内测阶段</li>
+    </ul>
+</footer>
+
+<footer class="app-footer">
+    <div class="footer-content">
+        <div class="version-info">
+            © 2025 实验室药品查询系统 v1.0
+            <span class="version-divider">|</span>
+            <span class="beta-version">内测版本</span>
+        </div>
+    </div>
+</footer>
+
+
+        <!-- SVG图标 -->
+        <svg style="display: none;">
+            <symbol id="search-icon" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </symbol>
+            <symbol id="close-icon" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </symbol>
+        </svg>
+
+        <!-- 浮动按钮组 -->
+        <div class="fab-group">
+            <button class="fab-secondary" id="toggleAllBtn" onclick="medicineManager.toggleAll()">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="white" d="M12 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM16 8v4.5c0 .5-.4 1-1 1h-2v4c0 .5-.4 1-1 1h-4c-.5 0-1-.5-1-1v-4H7c-.5 0-1-.5-1-1V8c0-.5.5-1 1-1h8c.5 0 1 .5 1 1z"/>
+                </svg>
+            </button>
+            <div class="fab" onclick="medicineManager.showAddModal()">+</div>
+        </div>
+
+        <!-- 添加药品模态框 -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="medicineManager.hideModal('addModal')">
+                    <svg><use xlink:href="#close-icon"></use></svg>
+                </button>
+                <h2>新增药品</h2>
+                <form id="addForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>药品名称*</label>
+                            <input type="text" id="addName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>药品别名</label>
+                            <input type="text" id="addAlias">
+                        </div>
+                        <div class="form-group">
+                            <label>存放位置*<small>（多个用逗号分隔）</small></label>
+                            <input type="text" id="addLocations" required>
+                        </div>
+                        <div class="form-group">
+                            <label>初始库存*</label>
+                            <input type="number" id="addQuantity" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-save" onclick="medicineManager.addMedicine()">
+                            <span>保存药品</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 操作选择模态框 -->
+                <div id="actionModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="medicineManager.hideModal('actionModal')">
+                    <svg><use xlink:href="#close-icon"></use></svg>
+                </button>
+                <h2>请选择操作类型</h2>
+                <div class="action-buttons">
+                    <button class="btn-take" onclick="medicineManager.handleConsume('take')">
+                        仅记录取用
+                        <small>（不修改库存）</small>
+                    </button>
+                    <button class="btn-consume" onclick="medicineManager.handleConsume('consume')">
+                        消耗库存
+                        <small>（减少库存数量）</small>
+                    </button>
+                </div>
+                <div class="amount-control" id="amountControl">
+                    <input type="number" id="consumeAmount" min="1" value="1">
+                    <button class="btn-confirm" onclick="medicineManager.confirmConsume()">确认消耗</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑药品模态框 -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="medicineManager.hideModal('editModal')">
+                    <svg><use xlink:href="#close-icon"></use></svg>
+                </button>
+                <h2>编辑药品信息</h2>
+                <form id="editForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>药品名称*</label>
+                            <input type="text" id="editName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>药品别名</label>
+                            <input type="text" id="editAlias">
+                        </div>
+                        <div class="form-group">
+                            <label>存放位置*<small>（多个用逗号分隔）</small></label>
+                            <input type="text" id="editLocations" required>
+                        </div>
+                        <div class="form-group">
+                            <label>当前库存*</label>
+                            <input type="number" id="editQuantity" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-save" onclick="medicineManager.updateMedicine()">
+                            <span>保存修改</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 删除确认模态框 -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="medicineManager.hideModal('deleteModal')">
+                    <svg><use xlink:href="#close-icon"></use></svg>
+                </button>
+                <h2>确认删除药品</h2>
+                <div class="delete-content">
+                    <p>请输入药品全名 <strong id="deleteMedicineName"></strong> 确认删除：</p>
+                    <input type="text" id="deleteConfirmInput" placeholder="输入药品名称">
+                    <div class="delete-actions">
+                        <button class="btn-cancel" onclick="medicineManager.hideModal('deleteModal')">取消</button>
+                        <button class="btn-confirm-delete" onclick="medicineManager.confirmDelete()">确认删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 在app.js初始化前获取实验室参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentLab = urlParams.get('lab');
+        if(!currentLab) window.location.href = 'login.html';
+        
+        // 显示当前实验室
+        document.getElementById('currentLab').textContent = `当前实验室：${currentLab}`;
+    </script>
+        <script type="module" src="app.js"></script>
+</body>
+</html>
