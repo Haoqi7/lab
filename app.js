@@ -244,6 +244,11 @@ class MedicineManager {
         this.domElements.pagination.classList.toggle('hidden', totalPages <= 1)
     }
 
+    showAddModal() {
+      this.showModal('addModal');
+      this.clearAddForm();
+    }
+
     toggleTableVisibility() {
         const hasData = this.filteredData.length > 0
         this.domElements.tableContainer.classList.toggle('hidden', !hasData)
