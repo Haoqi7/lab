@@ -1,27 +1,14 @@
+// vercel.json
 {
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/login.html",
-      "headers": {
-        "Cache-Control": "public, max-age=3600"
-      }
-    },
-    {
-      "src": "/index",
-      "dest": "/index.html",
-      "headers": {
-        "Cache-Control": "no-cache"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200,
-      "headers": {
-        "Content-Type": "text/html; charset=utf-8"
-      }
+  "build": {
+    "env": {
+
+      "VITE_SUPABASE_URL": "$VITE_SUPABASE_URL",
+      "VITE_SUPABASE_ANON_KEY": "$VITE_SUPABASE_ANON_KEY"
     }
-  ],
-  "trailingSlash": false
+  },
+  "routes": [
+    { "src": "/.*", "dest": "/index.html" },
+    { "src": "/login", "dest": "/login.html" }
+  ]
 }
