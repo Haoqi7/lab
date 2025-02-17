@@ -1,6 +1,21 @@
 
+{
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
   "routes": [
-    { "src": "/", "dest": "/login.html" },
-    { "src": "/index", "dest": "/index.html" }
-  ]
-
+    {
+      "src": "/",
+      "dest": "/login.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}
