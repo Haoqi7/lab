@@ -1,21 +1,27 @@
-
 {
-  "builds": [
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
       "src": "/",
-      "dest": "/login.html"
+      "dest": "/login.html",
+      "headers": {
+        "Cache-Control": "public, max-age=3600"
+      }
+    },
+    {
+      "src": "/index",
+      "dest": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "status": 200,
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      }
     }
   ],
-  "cleanUrls": true,
   "trailingSlash": false
 }
