@@ -1,14 +1,14 @@
-
 {
   "build": {
     "env": {
-
-      "VITE_SUPABASE_URL": "$VITE_SUPABASE_URL",
-      "VITE_SUPABASE_ANON_KEY": "$VITE_SUPABASE_ANON_KEY"
+      "VITE_SUPABASE_URL": "@vite_supabase_url",
+      "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key"
     }
   },
   "routes": [
-    { "src": "/.*", "dest": "/index.html" },
-    { "src": "/login", "dest": "/login.html" }
+    { "src": "/", "dest": "/login.html" },
+    { "src": "/index", "dest": "/index.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" }
   ]
 }
